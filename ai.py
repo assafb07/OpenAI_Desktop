@@ -18,8 +18,8 @@ def ask_ai():
     global is_on
     if is_on == 0:
         pb01 = boottk.Floodgauge(frame01,
-            font=(None, 24, 'bold'),
-            mask='Open AI', mode = 'indeterminate', length = '140'
+            font=('Arial', 24, 'bold'),
+            mask='Open AI', mode = 'indeterminate', length = '150'
             )
         pb01.grid(row = 0, column = 0)
         is_on = 1
@@ -32,8 +32,6 @@ def ask_ai():
     print("wait, I am thinking about it...")
     with open("my_key.txt", "r") as file:
         openai.api_key = file.readlines()[0].strip()
-#    print(openai.api_key)
-#    openai.api_key = my_key.api_key
 
     my_prompt = entry01.get("1.0", tk.END)
     code_checkbox_value = var1.get()
@@ -91,7 +89,9 @@ def check_language(string_to_analize):
         if char.lower() in eng:
             lan = "eng"
             break
-    else: lan = "heb"
+        elif char.lower() in heb:
+            lan = "heb"
+            break
     return lan
 
 def change_theme():
@@ -177,6 +177,15 @@ def showMenu(event):
     clickedWidget = event.widget
     popup.post(event.x_root, event.y_root)
 
+def update_key_window():
+    def save_key():
+        with open("my_key.txt", "w") as file:
+            file.write(key_entry.get())
+    key_window = tk.Tk()
+    tk.Label(key_window, text = "Enter Your Key").grid(row=0, column=0, padx = 10, pady = 10)
+    key_entry = tk.Entry(key_window, width = 20)
+    key_entry.grid(row=0, column=1, pady = 10)
+    tk.Button(key_window, text = "Save", width = 10, font=("Arial", "8"), command = save_key).grid(row=1, columnspan = 2, pady = 10)
 
 window = boottk.Window()
 window.style.theme_use("darkly")
@@ -220,8 +229,24 @@ answers.bind('<Button-3>',rClicker, add='')
 button01 = boottk.Button(frame04, text = "Let's Go!", width = "20", command = ask_ai_thread)
 button01.grid(row = 0, column = 0, pady=10, padx=5)
 
-menubar = Menu(window)
-window.config(menu = menubar)
-menubar.add_command(label = 'Choose Theme', command = lambda: change_theme())
+#menubar = Menu(window)
+#window.config(menu = menubar)
+#menubar.add_command(label = 'Choose Theme', command = lambda: change_theme())
+#menubar.add_command(label="Add Key", command=None)
+menu_bar = Menu(window)
+
+# Create the "Theme" menu
+theme_menu = Menu(menu_bar, tearoff=0)
+theme_menu.add_command(label = 'Choose Theme', command = change_theme)
+menu_bar.add_cascade(label="Theme ", menu=theme_menu)
+
+# Create the "Save Key" menu
+save_key_menu = Menu(menu_bar, tearoff=0)
+save_key_menu.add_command(label="Update/Save", command = update_key_window)
+menu_bar.add_cascade(label="Update Key", menu=save_key_menu)
+
+# Add the menu bar to the window
+window.config(menu=menu_bar)
+
 
 window.mainloop()
