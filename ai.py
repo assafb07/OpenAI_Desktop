@@ -3,7 +3,6 @@ from tkinter import *
 from tkinter import messagebox, ttk, Menu
 import ttkbootstrap as boottk
 from ttkbootstrap.constants import *
-import os
 import openai
 import threading
 import pyperclip
