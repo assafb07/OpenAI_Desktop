@@ -214,7 +214,6 @@ entry01.bind('<Button-3>',rClicker, add='')
 label02 = boottk.Label(frame03, text = "Answer", font=("Arial", "9"))
 label02.grid(row = 0, column = 1)
 answers = boottk.Text(frame03, width=57,  height=18, wrap="word")
-answers.insert("1.0", "All answers are saved in a text file (ai_answer.txt) on your local directory")
 answers.grid(row = 1, column = 1, pady=5, padx=20)
 answers.bind('<Button-3>',rClicker, add='')
 
