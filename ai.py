@@ -6,7 +6,6 @@ from ttkbootstrap.constants import *
 import os
 import openai
 import threading
-import my_key
 import pyperclip
 
 global frame_on_off
