@@ -1,8 +1,7 @@
 # OpenAI_Desktop
 
 Go to https://openai.com/api/ and create an account. 
-Create your own KEY and save it in my_key.txt.
-
+Create your own KEY and save it to the app, using the menu bar - "Update Key"
 pip install openai
 pip install ttkbootstrap
 pip install pyperclip
