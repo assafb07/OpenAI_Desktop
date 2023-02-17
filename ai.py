@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import *
-from tkinter import messagebox, ttk, Menu
+#from tkinter import messagebox, ttk, Menu
 import ttkbootstrap as boottk
 from ttkbootstrap.constants import *
 import openai
@@ -13,6 +13,12 @@ tag = "tag-left"
 justify_to = "left"
 global is_on
 is_on = 0
+
+try:
+    with open("last_theme.txt", "r") as theme_file:
+        last_theme = theme_file.readlines()[0].strip()
+except:
+    last_theme = "cyborg"
 
 def ask_ai():
     global is_on
@@ -29,7 +35,6 @@ def ask_ai():
     top_p_value = 0
     temperature_value = 0
 
-    print("wait, I am thinking about it...")
     with open("my_key.txt", "r") as file:
         openai.api_key = file.readlines()[0].strip()
 
@@ -43,7 +48,6 @@ def ask_ai():
     if imagination_value == 0:
         temperature_value = 0
     elif imagination_value == 1:
-        print("imagine")
         temperature_value = 0.8
         top_p_value = 0.7
     try:
@@ -72,15 +76,12 @@ def ask_ai():
         file.write(f"\nAI Response: {answer01}")
         file.write("\n\n------------------------------------------------\n\n")
 
-
 def ask_ai_thread():
     global thread01
     thread01 =  threading.Thread(target = ask_ai)
-    print("start thread")
     thread01.start()
     answers.delete("1.0", tk.END)
     answers.insert(tk.END, "Wait, I am thinking about it....")
-
 
 def check_language(string_to_analize):
     heb = "אבגדהוזחטיכלמנסעפצקרשת"
@@ -96,9 +97,7 @@ def check_language(string_to_analize):
 
 def change_theme():
     global frame_on_off, frame05
-    print(frame_on_off)
     if frame_on_off == "on":
-        print(frame05, "hello")
         frame05.destroy()
         frame_on_off = "off"
     else:
@@ -120,23 +119,21 @@ def change_theme():
 
         def my_upd():
             window.style.theme_use(my_str.get())
-            print(my_str.get())
+            with open("last_theme.txt", "w") as theme_file:
+                theme_file.write(my_str.get())
+
 def rClicker(e):
     ''' right click context menu for all Tk Entry and Text widgets
     '''
-
     try:
         def rClick_Copy(e, apnd=0):
             e.widget.event_generate('<Control-c>')
-
         def rClick_Cut(e):
             e.widget.event_generate('<Control-x>')
-
         def rClick_Paste(e):
             e.widget.event_generate('<Control-v>')
         def rClick_Select_all(e):
             e.widget.event_generate('<Control-a>')
-
         e.widget.focus()
 
         nclst=[
@@ -159,9 +156,7 @@ def rClicker(e):
 
     return "break"
 
-
 def rClickbinder(r):
-
     try:
         for b in [ 'Text', 'Entry', 'Listbox', 'Label']: #
             r.bind_class(b, sequence='<Button-3>',
@@ -169,7 +164,6 @@ def rClickbinder(r):
     except TclError:
         print (' - rClickbinder, something wrong')
         pass
-
 
 #right click menu for text box - copy, select all
 def showMenu(event):
@@ -187,8 +181,9 @@ def update_key_window():
     key_entry.grid(row=0, column=1, pady = 10)
     tk.Button(key_window, text = "Save", width = 10, font=("Arial", "8"), command = save_key).grid(row=1, columnspan = 2, pady = 10)
 
+
 window = boottk.Window()
-window.style.theme_use("darkly")
+window.style.theme_use(last_theme)
 #window.geometry("2200x1500")
 window.title("Open AI")
 frame01 = boottk.Frame(window)
@@ -229,24 +224,15 @@ answers.bind('<Button-3>',rClicker, add='')
 button01 = boottk.Button(frame04, text = "Let's Go!", width = "20", command = ask_ai_thread)
 button01.grid(row = 0, column = 0, pady=10, padx=5)
 
-#menubar = Menu(window)
-#window.config(menu = menubar)
-#menubar.add_command(label = 'Choose Theme', command = lambda: change_theme())
-#menubar.add_command(label="Add Key", command=None)
 menu_bar = Menu(window)
-
-# Create the "Theme" menu
 theme_menu = Menu(menu_bar, tearoff=0)
 theme_menu.add_command(label = 'Choose Theme', command = change_theme)
 menu_bar.add_cascade(label="Theme ", menu=theme_menu)
 
-# Create the "Save Key" menu
 save_key_menu = Menu(menu_bar, tearoff=0)
 save_key_menu.add_command(label="Update/Save", command = update_key_window)
 menu_bar.add_cascade(label="Update Key", menu=save_key_menu)
 
-# Add the menu bar to the window
 window.config(menu=menu_bar)
-
 
 window.mainloop()
