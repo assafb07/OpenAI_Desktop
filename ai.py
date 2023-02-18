@@ -34,10 +34,8 @@ def ask_ai():
     max_tokens = 1000
     top_p_value = 0
     temperature_value = 0
-
     with open("my_key.txt", "r") as file:
         openai.api_key = file.readlines()[0].strip()
-
     my_prompt = entry01.get("1.0", tk.END)
     code_checkbox_value = var1.get()
     imagination_value = var2.get()
@@ -53,21 +51,44 @@ def ask_ai():
     try:
         response = openai.Completion.create(engine=model, prompt=my_prompt, max_tokens=max_tokens, n=1, top_p=top_p_value, stop=None, temperature=temperature_value)
         answer01 = response["choices"][0]["text"].strip()
-    except:
-        answers.delete("1.0", tk.END)
-        answers.tag_configure(tag, justify=justify_to)
-        answers.insert(tk.END, "Somthing went wrong :-(\nTry Again)", tag)
-
-    if is_on == 1:
         pb01.destroy()
         is_on = 0
-    lan = check_language(answer01[0:10])
-    if lan == "heb":
-        tag = 'tag-right'
-        justify_to = "right"
-    else:
+        return answer01
+    except:
+        pb01.destroy()
+        is_on = 0
+        return "Somthing went wrong"
+
+def check_key():
+    try:
+        with open("my_key.txt", "r") as file:
+            openai.api_key = file.readlines()[0].strip()
+            print("key ok")
+        return "key ok"
+    except:
+        print("no key")
+        return "no key"
+
+def print_answer():
+    key_ok = check_key()
+    if check_key() == "key ok":
+        print("key ok")
+        answer01 = ask_ai()
+        print(answer01)
+        lan = check_language(answer01[0:])
+        if lan == "heb":
+            tag = 'tag-right'
+            justify_to = "right"
+        else:
+            tag = "tag-left"
+            justify_to = "left"
+
+    elif check_key() == "no key":
         tag = "tag-left"
         justify_to = "left"
+        answer01 = "Something wend wrong! Check your key."
+
+    my_prompt = entry01.get("1.0", tk.END)
     answers.delete("1.0", tk.END)
     answers.tag_configure(tag, justify=justify_to)
     answers.insert(tk.END, f"{answer01}", tag)
@@ -77,8 +98,7 @@ def ask_ai():
         file.write("\n\n------------------------------------------------\n\n")
 
 def ask_ai_thread():
-    global thread01
-    thread01 =  threading.Thread(target = ask_ai)
+    thread01 =  threading.Thread(target = print_answer)
     thread01.start()
     answers.delete("1.0", tk.END)
     answers.insert(tk.END, "Wait, I am thinking about it....")
@@ -175,6 +195,7 @@ def update_key_window():
     def save_key():
         with open("my_key.txt", "w") as file:
             file.write(key_entry.get())
+
     key_window = tk.Tk()
     tk.Label(key_window, text = "Enter Your Key").grid(row=0, column=0, padx = 10, pady = 10)
     key_entry = tk.Entry(key_window, width = 20)
