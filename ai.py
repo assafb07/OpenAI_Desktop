@@ -1,6 +1,5 @@
 import tkinter as tk
-from tkinter import *
-#from tkinter import messagebox, ttk, Menu
+#from tkinter import Menu
 import ttkbootstrap as boottk
 from ttkbootstrap.constants import *
 import openai
@@ -9,8 +8,6 @@ import pyperclip
 
 global frame_on_off
 frame_on_off = "off"
-tag = "tag-left"
-justify_to = "left"
 global is_on
 is_on = 0
 
@@ -25,7 +22,7 @@ def ask_ai():
     if is_on == 0:
         pb01 = boottk.Floodgauge(frame01,
             font=('Arial', 24, 'bold'),
-            mask='Open AI', mode = 'indeterminate', length = '150'
+            mask='Open AI Desktop', mode = 'indeterminate', length = '250'
             )
         pb01.grid(row = 0, column = 0)
         is_on = 1
@@ -63,45 +60,48 @@ def check_key():
     try:
         with open("my_key.txt", "r") as file:
             openai.api_key = file.readlines()[0].strip()
-            print("key ok")
         return "key ok"
     except:
-        print("no key")
         return "no key"
 
-def print_answer():
+def print_answer(answer01="", error_messege=0):
     key_ok = check_key()
-    if check_key() == "key ok":
-        print("key ok")
-        answer01 = ask_ai()
-        print(answer01)
-        lan = check_language(answer01[0:])
-        if lan == "heb":
-            tag = 'tag-right'
-            justify_to = "right"
-        else:
+    tag = "tag-left"
+    justify_to = "left"
+    if error_messege == 0:
+        if check_key() == "key ok":
+            answer01 = ask_ai()
+            lan = check_language(answer01[0:])
+            if lan == "heb":
+                tag = 'tag-right'
+                justify_to = "right"
+            else:
+                tag = "tag-left"
+                justify_to = "left"
+
+            my_prompt = entry01.get("1.0", tk.END)
+            with open ("ai_answer.txt", "a", encoding = 'utf-8-sig') as file:
+                file.write(f"your question: {my_prompt}\n--------------------------\n")
+                file.write(f"\nAI Response: {answer01}")
+                file.write("\n\n------------------------------------------------\n\n")
+
+        elif check_key() == "no key":
             tag = "tag-left"
             justify_to = "left"
+            answer01 = "Something wend wrong! Check your key."
 
-    elif check_key() == "no key":
-        tag = "tag-left"
-        justify_to = "left"
-        answer01 = "Something wend wrong! Check your key."
 
-    my_prompt = entry01.get("1.0", tk.END)
     answers.delete("1.0", tk.END)
     answers.tag_configure(tag, justify=justify_to)
     answers.insert(tk.END, f"{answer01}", tag)
-    with open ("ai_answer.txt", "a", encoding = 'utf-8-sig') as file:
-        file.write(f"your question: {my_prompt}\n--------------------------\n")
-        file.write(f"\nAI Response: {answer01}")
-        file.write("\n\n------------------------------------------------\n\n")
+
 
 def ask_ai_thread():
     thread01 =  threading.Thread(target = print_answer)
     thread01.start()
-    answers.delete("1.0", tk.END)
-    answers.insert(tk.END, "Wait, I am thinking about it....")
+    print_answer("Wait, I am thinking about it....", 1)
+#    answers.delete("1.0", tk.END)
+#    answers.insert(tk.END, "Wait, I am thinking about it....")
 
 def check_language(string_to_analize):
     heb = "אבגדהוזחטיכלמנסעפצקרשת"
@@ -193,12 +193,19 @@ def showMenu(event):
 
 def update_key_window():
     def save_key():
-        with open("my_key.txt", "w") as file:
-            file.write(key_entry.get())
+        my_key = key_entry.get()
+        if my_key == "" or my_key[0:2] != "sk":
+            print_answer("This is not a valid OpenAI key", 1)
+        else:
+            print(my_key[0:2])
+            with open("my_key.txt", "w") as file:
+                file.write(key_entry.get())
+            print_answer("OpenAI Key Updated Successfully", 1)
+            key_window.destroy()
 
-    key_window = tk.Tk()
+    key_window = boottk.Toplevel(window)
     tk.Label(key_window, text = "Enter Your Key").grid(row=0, column=0, padx = 10, pady = 10)
-    key_entry = tk.Entry(key_window, width = 20)
+    key_entry = boottk.Entry(key_window, width = 20)
     key_entry.grid(row=0, column=1, pady = 10)
     tk.Button(key_window, text = "Save", width = 10, font=("Arial", "8"), command = save_key).grid(row=1, columnspan = 2, pady = 10)
 
@@ -206,7 +213,7 @@ def update_key_window():
 window = boottk.Window()
 window.style.theme_use(last_theme)
 #window.geometry("2200x1500")
-window.title("Open AI")
+window.title("Open AI Desktop")
 frame01 = boottk.Frame(window)
 frame01.grid(row = 0, column = 0)
 frame02 = boottk.Frame(window)
@@ -216,19 +223,19 @@ frame03.grid(row = 2, column = 0)
 frame04 = boottk.Frame(window)
 frame04.grid(row = 3, column = 0)
 
-label01 = boottk.Label(frame01, text = "Open AI", font=("Arial", "20"))
-label01.grid(row=0, column = 0, columnspan = 2, pady = 10)
+label01 = boottk.Label(frame01, text = "Open AI Desktop", font=("Arial", "20"))
+label01.grid(row=0, column = 0, columnspan = 2, pady = 10, sticky="ew")
 
-label02 = boottk.Label(frame01, text = "שאל אותי שאלה")
-label02.grid(row = 1, column =0, pady=20, padx=20)
+label02 = boottk.Label(frame01, text = "Powered by openai.com API")
+label02.grid(row = 1, column =0, pady=10, padx=20)
 
-var1 = IntVar()
-code_checkbox = Checkbutton(frame02, text="Code/Script" ,variable=var1, onvalue=1, offvalue=0)
-code_checkbox.grid(row=0, column = 0, padx = 10, pady = 10)
+var1 = boottk.IntVar()
+code_checkbox = boottk.Checkbutton(frame02, text="Code/Script     " ,variable=var1, onvalue=1, offvalue=0)
+code_checkbox.grid(row=0, column = 0, padx = 10, pady = 30)
 
-var2 = IntVar()
-imagine_checkbox = Checkbutton(frame02, text="Imagination" ,variable=var2, onvalue=1, offvalue=0)
-imagine_checkbox.grid(row=0, column = 1, padx = 10, pady = 10)
+var2 = boottk.IntVar()
+imagine_checkbox = boottk.Checkbutton(frame02, text="Imagination" ,variable=var2, onvalue=1, offvalue=0)
+imagine_checkbox.grid(row=0, column = 1, padx = 10, pady = 30)
 
 label01 = boottk.Label(frame03, text = "Question", font=("Arial", "9"))
 label01.grid(row = 0, column = 0)
@@ -245,12 +252,12 @@ answers.bind('<Button-3>',rClicker, add='')
 button01 = boottk.Button(frame04, text = "Let's Go!", width = "20", command = ask_ai_thread)
 button01.grid(row = 0, column = 0, pady=10, padx=5)
 
-menu_bar = Menu(window)
-theme_menu = Menu(menu_bar, tearoff=0)
+menu_bar = boottk.Menu(window)
+theme_menu = boottk.Menu(menu_bar, tearoff=0)
 theme_menu.add_command(label = 'Choose Theme', command = change_theme)
 menu_bar.add_cascade(label="Theme ", menu=theme_menu)
 
-save_key_menu = Menu(menu_bar, tearoff=0)
+save_key_menu = boottk.Menu(menu_bar, tearoff=0)
 save_key_menu.add_command(label="Update/Save", command = update_key_window)
 menu_bar.add_cascade(label="Update Key", menu=save_key_menu)
 
