@@ -1,4 +1,4 @@
-import tkinter as tk
+#import tkinter as tk
 #from tkinter import Menu
 import ttkbootstrap as boottk
 from ttkbootstrap.constants import *
@@ -22,9 +22,9 @@ def ask_ai():
     if is_on == 0:
         pb01 = boottk.Floodgauge(frame01,
             font=('Arial', 24, 'bold'),
-            mask='Open AI Desktop', mode = 'indeterminate', length = '250'
+            mask='Open AI Desktop', mode = 'indeterminate', length = '300'
             )
-        pb01.grid(row = 0, column = 0)
+        pb01.grid(row = 0, column = 0, sticky=boottk.EW)
         is_on = 1
         pb01.start()
 
@@ -33,7 +33,7 @@ def ask_ai():
     temperature_value = 0
     with open("my_key.txt", "r") as file:
         openai.api_key = file.readlines()[0].strip()
-    my_prompt = entry01.get("1.0", tk.END)
+    my_prompt = entry01.get("1.0", boottk.END)
     code_checkbox_value = var1.get()
     imagination_value = var2.get()
     if code_checkbox_value == 0:
@@ -79,7 +79,7 @@ def print_answer(answer01="", error_messege=0):
                 tag = "tag-left"
                 justify_to = "left"
 
-            my_prompt = entry01.get("1.0", tk.END)
+            my_prompt = entry01.get("1.0", boottk.END)
             with open ("ai_answer.txt", "a", encoding = 'utf-8-sig') as file:
                 file.write(f"your question: {my_prompt}\n--------------------------\n")
                 file.write(f"\nAI Response: {answer01}")
@@ -91,9 +91,9 @@ def print_answer(answer01="", error_messege=0):
             answer01 = "Something wend wrong! Check your key."
 
 
-    answers.delete("1.0", tk.END)
+    answers.delete("1.0", boottk.END)
     answers.tag_configure(tag, justify=justify_to)
-    answers.insert(tk.END, f"{answer01}", tag)
+    answers.insert(boottk.END, f"{answer01}", tag)
 
 
 def ask_ai_thread():
@@ -204,10 +204,10 @@ def update_key_window():
             key_window.destroy()
 
     key_window = boottk.Toplevel(window)
-    tk.Label(key_window, text = "Enter Your Key").grid(row=0, column=0, padx = 10, pady = 10)
+    boottk.Label(key_window, text = "Enter Your Key").grid(row=0, column=0, padx = 10, pady = 10)
     key_entry = boottk.Entry(key_window, width = 20)
     key_entry.grid(row=0, column=1, pady = 10)
-    tk.Button(key_window, text = "Save", width = 10, font=("Arial", "8"), command = save_key).grid(row=1, columnspan = 2, pady = 10)
+    boottk.Button(key_window, text = "Save", width = 10, command = save_key).grid(row=1, columnspan = 2, pady = 10)
 
 
 window = boottk.Window()
@@ -215,7 +215,7 @@ window.style.theme_use(last_theme)
 #window.geometry("2200x1500")
 window.title("Open AI Desktop")
 frame01 = boottk.Frame(window)
-frame01.grid(row = 0, column = 0)
+frame01.grid(row = 0, column = 0, columnspan = 2)
 frame02 = boottk.Frame(window)
 frame02.grid(row = 1, column = 0)
 frame03 = boottk.Frame(window)
@@ -224,18 +224,18 @@ frame04 = boottk.Frame(window)
 frame04.grid(row = 3, column = 0)
 
 label01 = boottk.Label(frame01, text = "Open AI Desktop", font=("Arial", "20"))
-label01.grid(row=0, column = 0, columnspan = 2, pady = 10, sticky="ew")
+label01.grid(row=0, column = 0, pady = 10)
 
 label02 = boottk.Label(frame01, text = "Powered by openai.com API")
-label02.grid(row = 1, column =0, pady=10, padx=20)
+label02.grid(row = 1, column =0, pady=10, padx=10)
 
 var1 = boottk.IntVar()
 code_checkbox = boottk.Checkbutton(frame02, text="Code/Script     " ,variable=var1, onvalue=1, offvalue=0)
-code_checkbox.grid(row=0, column = 0, padx = 10, pady = 30)
+code_checkbox.grid(row=0, column = 0, padx = 10, pady = 20)
 
 var2 = boottk.IntVar()
 imagine_checkbox = boottk.Checkbutton(frame02, text="Imagination" ,variable=var2, onvalue=1, offvalue=0)
-imagine_checkbox.grid(row=0, column = 1, padx = 10, pady = 30)
+imagine_checkbox.grid(row=0, column = 1, padx = 10, pady = 20)
 
 label01 = boottk.Label(frame03, text = "Question", font=("Arial", "9"))
 label01.grid(row = 0, column = 0)
