@@ -1,5 +1,4 @@
-#import tkinter as tk
-#from tkinter import Menu
+from cryptography.fernet import Fernet
 import ttkbootstrap as boottk
 from ttkbootstrap.constants import *
 import openai
@@ -17,6 +16,22 @@ try:
 except:
     last_theme = "cyborg"
 
+
+def encrypting(my_key):
+    key = Fernet.generate_key()
+    fernet = Fernet(key)
+    with open("filekey.Key", "wb") as filekey:
+        filekey.write(key)
+    enc_key = fernet.encrypt(my_key.encode())
+    return enc_key
+
+def decrypting(enc_key):
+    with open("filekey.Key", "rb") as filekey:
+        key = filekey.read()
+    fernet = Fernet(key)
+    dec_key = fernet.decrypt(enc_key).decode()
+    return dec_key
+
 def ask_ai():
     global is_on
     if is_on == 0:
@@ -31,8 +46,11 @@ def ask_ai():
     max_tokens = 1000
     top_p_value = 0
     temperature_value = 0
-    with open("my_key.txt", "r") as file:
-        openai.api_key = file.readlines()[0].strip()
+    with open("my_key.txt", "rb") as file:
+        encrypted_key = file.read()
+    dec_key = decrypting(encrypted_key)
+
+    openai.api_key = dec_key
     my_prompt = entry01.get("1.0", boottk.END)
     code_checkbox_value = var1.get()
     imagination_value = var2.get()
@@ -197,9 +215,9 @@ def update_key_window():
         if my_key == "" or my_key[0:2] != "sk":
             print_answer("This is not a valid OpenAI key", 1)
         else:
-            print(my_key[0:2])
-            with open("my_key.txt", "w") as file:
-                file.write(key_entry.get())
+            enc_key = encrypting(my_key)
+            with open("my_key.txt", "wb") as file:
+                file.write(enc_key)
             print_answer("OpenAI Key Updated Successfully", 1)
             key_window.destroy()
 
@@ -208,6 +226,9 @@ def update_key_window():
     key_entry = boottk.Entry(key_window, width = 20)
     key_entry.grid(row=0, column=1, pady = 10)
     boottk.Button(key_window, text = "Save", width = 10, command = save_key).grid(row=1, columnspan = 2, pady = 10)
+
+
+
 
 
 window = boottk.Window()
