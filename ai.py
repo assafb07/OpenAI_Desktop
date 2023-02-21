@@ -30,6 +30,7 @@ def decrypting(enc_key):
         key = filekey.read()
     fernet = Fernet(key)
     dec_key = fernet.decrypt(enc_key).decode()
+    print(dec_key)
     return dec_key
 
 def ask_ai():
@@ -69,15 +70,16 @@ def ask_ai():
         pb01.destroy()
         is_on = 0
         return answer01
-    except:
+    except Exception as e:
+        print("no response!", str(e))
         pb01.destroy()
         is_on = 0
-        return "Somthing went wrong"
+        return f"Somthing went wrong\n{str(e)}"
 
 def check_key():
     try:
-        with open("my_key.txt", "r") as file:
-            openai.api_key = file.readlines()[0].strip()
+        with open("my_key.txt", "rb") as file:
+            key_01 = file.read()
         return "key ok"
     except:
         return "no key"
@@ -118,8 +120,6 @@ def ask_ai_thread():
     thread01 =  threading.Thread(target = print_answer)
     thread01.start()
     print_answer("Wait, I am thinking about it....", 1)
-#    answers.delete("1.0", tk.END)
-#    answers.insert(tk.END, "Wait, I am thinking about it....")
 
 def check_language(string_to_analize):
     heb = "אבגדהוזחטיכלמנסעפצקרשת"
